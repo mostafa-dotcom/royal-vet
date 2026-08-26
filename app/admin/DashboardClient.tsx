@@ -1,0 +1,218 @@
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { updateStatus, deleteEntry, logout } from './actions';
+
+type WaitlistEntry = {
+  id: number;
+  name: string | null;
+  phone: string;
+  status: string;
+  createdAt: Date;
+};
+
+export default function DashboardClient({ initialData }: { initialData: WaitlistEntry[] }) {
+  const [data, setData] = useState(initialData);
+  const [search, setSearch] = useState('');
+
+  // Filtering
+  const filteredData = data.filter(entry => 
+    (entry.name?.toLowerCase().includes(search.toLowerCase()) || '') ||
+    entry.phone.includes(search)
+  );
+
+  // Stats
+  const total = data.length;
+  const newContacts = data.filter(e => e.status === 'NEW').length;
+  const contacted = data.filter(e => e.status === 'CONTACTED').length;
+
+  const handleStatusToggle = async (id: number, currentStatus: string) => {
+    const newStatus = currentStatus === 'NEW' ? 'CONTACTED' : 'NEW';
+    // Optimistic update
+    setData(data.map(item => item.id === id ? { ...item, status: newStatus } : item));
+    const result = await updateStatus(id, newStatus);
+    if (result.error) {
+      // Revert on error
+      setData(data.map(item => item.id === id ? { ...item, status: currentStatus } : item));
+      alert(result.error);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+      const original = [...data];
+      setData(data.filter(item => item.id !== id));
+      const result = await deleteEntry(id);
+      if (result.error) {
+        setData(original);
+        alert(result.error);
+      }
+    }
+  };
+
+  const exportToCSV = () => {
+    const headers = ['الاسم', 'رقم الواتساب', 'تاريخ التسجيل', 'الحالة'];
+    const rows = filteredData.map(e => [
+      e.name || 'لم يكتب',
+      e.phone,
+      new Date(e.createdAt).toLocaleString('ar-EG'),
+      e.status === 'NEW' ? 'جديد' : 'تم التواصل'
+    ]);
+    
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM for arabic
+    csvContent += headers.join(",") + "\n";
+    rows.forEach(row => {
+      csvContent += row.join(",") + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `royal_vet_waitlist_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="space-y-8 font-sans">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white font-serif mb-2">لوحة التحكم</h1>
+          <p className="text-[#D4AF37]">إدارة قائمة الانتظار</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={exportToCSV}
+            className="px-6 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition border border-white/20 flex items-center gap-2"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            تصدير CSV
+          </button>
+          <button 
+            onClick={() => logout()}
+            className="px-6 py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition border border-red-500/20"
+          >
+            تسجيل الخروج
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="glass-premium p-6 rounded-2xl border border-[#D4AF37]/30">
+          <h3 className="text-gray-400 mb-1">إجمالي المسجلين</h3>
+          <p className="text-4xl font-bold text-white">{total}</p>
+        </div>
+        <div className="glass-premium p-6 rounded-2xl border border-white/10">
+          <h3 className="text-gray-400 mb-1">عملاء جدد</h3>
+          <p className="text-4xl font-bold text-green-400">{newContacts}</p>
+        </div>
+        <div className="glass-premium p-6 rounded-2xl border border-white/10">
+          <h3 className="text-gray-400 mb-1">تم التواصل</h3>
+          <p className="text-4xl font-bold text-gray-300">{contacted}</p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="glass-premium p-4 rounded-2xl flex items-center gap-3">
+        <svg width="20" height="20" className="text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text"
+          placeholder="ابحث بالاسم أو الرقم..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="bg-transparent border-none outline-none text-white w-full placeholder:text-gray-500"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="glass-premium rounded-2xl overflow-hidden border border-white/10">
+        <div className="overflow-x-auto">
+          <table className="w-full text-right">
+            <thead className="bg-white/5 border-b border-white/10">
+              <tr>
+                <th className="p-4 text-gray-400 font-normal">الاسم</th>
+                <th className="p-4 text-gray-400 font-normal">رقم الواتساب</th>
+                <th className="p-4 text-gray-400 font-normal">التاريخ</th>
+                <th className="p-4 text-gray-400 font-normal">الحالة</th>
+                <th className="p-4 text-gray-400 font-normal">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                    لا يوجد عملاء مطابقين للبحث
+                  </td>
+                </tr>
+              ) : (
+                filteredData.map((entry) => (
+                  <motion.tr 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    key={entry.id} 
+                    className="border-b border-white/5 hover:bg-white/5 transition"
+                  >
+                    <td className="p-4 text-white font-medium">{entry.name || <span className="text-gray-500 italic">لم يكتب</span>}</td>
+                    <td className="p-4 text-white" dir="ltr">
+                      {entry.phone}
+                    </td>
+                    <td className="p-4 text-gray-300 text-sm">
+                      {new Date(entry.createdAt).toLocaleDateString('ar-EG', {
+                        year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })}
+                    </td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => handleStatusToggle(entry.id, entry.status)}
+                        className={`px-3 py-1 text-xs rounded-full border transition ${
+                          entry.status === 'NEW' 
+                            ? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30' 
+                            : 'bg-gray-500/20 text-gray-300 border-gray-500/30 hover:bg-gray-500/30'
+                        }`}
+                      >
+                        {entry.status === 'NEW' ? 'جديد' : 'تم التواصل'}
+                      </button>
+                    </td>
+                    <td className="p-4 flex gap-2">
+                      <a 
+                        href={`https://wa.me/${entry.phone.replace(/[^0-9]/g, '')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg bg-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/30 transition tooltip-container relative group"
+                        title="مراسلة واتساب"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                      </a>
+                      <button 
+                        onClick={() => handleDelete(entry.id)}
+                        className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
+                        title="حذف"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+                        </svg>
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
