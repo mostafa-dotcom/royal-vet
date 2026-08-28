@@ -120,7 +120,10 @@ export default function ComingSoonPage() {
           transition={{ duration: 2.0, ease: [0.22, 1, 0.36, 1], delay: 2.8 }}
           className="mb-16"
         >
-          <motion.button 
+          <motion.a 
+            href="/api/catalog"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               backgroundColor: "rgba(255,255,255,0.05)",
               borderColor: "rgba(255,255,255,0.1)"
@@ -140,7 +143,7 @@ export default function ComingSoonPage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 15V3M12 15L8 11M12 15L16 11M21 21H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </motion.button>
+          </motion.a>
         </motion.div>
 
         {/* Waitlist Section */}
