@@ -71,3 +71,37 @@ export async function deleteEntry(id: number) {
     return { error: 'Failed to delete entry' };
   }
 }
+
+export async function uploadCatalog(formData: FormData) {
+  try {
+    const file = formData.get('catalog') as File;
+    if (!file) {
+      return { error: 'برجاء اختيار ملف' };
+    }
+
+    // Dynamic import to avoid client-side issues
+    const { supabase } = await import('@/app/utils/supabase');
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Ensure the assets bucket is used, overwrite catalog.pdf if it exists
+    const { data, error } = await supabase.storage
+      .from('assets')
+      .upload('catalog.pdf', buffer, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return { error: 'فشل في رفع الملف، تأكد من إعدادات مساحة التخزين' };
+    }
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to upload catalog:', error);
+    return { error: 'حدث خطأ غير متوقع أثناء الرفع' };
+  }
+}

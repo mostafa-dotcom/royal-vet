@@ -37,6 +37,7 @@ export default function Navbar() {
     { name: isAr ? 'مقالات' : 'Articles', href: '/articles' },
     { name: isAr ? 'التطبيق' : 'The App', href: '/app' },
     { name: isAr ? 'الأسئلة والآراء' : 'FAQ & Reviews', href: '/faq' },
+    { name: isAr ? 'الكتالوج' : 'Catalog', href: '/api/catalog' },
     { name: isAr ? 'تواصل معنا' : 'Contact', href: '/contact' },
   ];
 
@@ -80,6 +81,22 @@ export default function Navbar() {
           <div className="hidden xl:flex items-center gap-0.5 px-2 relative z-10">
             {links.map((link, idx) => {
               const isActive = pathname === link.href;
+              const isExternal = link.href.startsWith('/api/');
+              
+              if (isExternal) {
+                return (
+                  <a 
+                    key={idx} 
+                    href={link.href} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`relative px-2.5 py-1.5 md:py-2 rounded-full text-[12px] lg:text-[13px] font-sans font-bold transition-all duration-300 overflow-hidden group/link text-[#FDFBF7]/70 hover:text-[#D4AF37]`}
+                  >
+                    <span className="relative z-10 whitespace-nowrap">{link.name}</span>
+                  </a>
+                );
+              }
+
               return (
                 <Link 
                   key={idx} 
@@ -169,26 +186,40 @@ export default function Navbar() {
 
             {/* Mobile Links */}
             <div className="flex flex-col items-center gap-6 md:gap-8 w-full px-6 z-10">
-              {links.map((link, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: idx * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <Link 
-                    href={link.href} 
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`relative text-3xl md:text-5xl font-['var(--font-alexandria)'] font-bold transition-colors duration-300 group inline-block
-                      ${pathname === link.href ? 'text-[#D4AF37]' : 'text-white hover:text-[#D4AF37]'}`}
+              {links.map((link, idx) => {
+                const isExternal = link.href.startsWith('/api/');
+                
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: idx * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    {link.name}
-                    <span className="absolute -bottom-2 left-0 w-0 h-1 bg-gradient-to-r from-[#D4AF37] to-[#B3932F] rounded-full transition-all duration-300 group-hover:w-full" />
-                  </Link>
-                </motion.div>
-              ))}
+                    {isExternal ? (
+                      <a 
+                        href={link.href} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`relative text-3xl md:text-5xl font-['var(--font-alexandria)'] font-bold transition-colors duration-300 group inline-block text-white hover:text-[#D4AF37]`}
+                      >
+                        {link.name}
+                        <span className="absolute -bottom-2 left-0 w-0 h-1 bg-gradient-to-r from-[#D4AF37] to-[#B3932F] rounded-full transition-all duration-300 group-hover:w-full" />
+                      </a>
+                    ) : (
+                      <Link 
+                        href={link.href} 
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`relative text-3xl md:text-5xl font-['var(--font-alexandria)'] font-bold transition-colors duration-300 group inline-block
+                          ${pathname === link.href ? 'text-[#D4AF37]' : 'text-white hover:text-[#D4AF37]'}`}
+                      >
+                        {link.name}
+                        <span className="absolute -bottom-2 left-0 w-0 h-1 bg-gradient-to-r from-[#D4AF37] to-[#B3932F] rounded-full transition-all duration-300 group-hover:w-full" />
+                      </Link>
+                    )}
+                  </motion.div>
+                );
+              })}
 
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
