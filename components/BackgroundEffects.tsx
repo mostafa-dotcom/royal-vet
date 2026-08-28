@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { motion, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 
 export default function BackgroundEffects() {
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
@@ -11,6 +11,8 @@ export default function BackgroundEffects() {
 
   const mouseX = useTransform(springX, (v) => `${v}%`);
   const mouseY = useTransform(springY, (v) => `${v}%`);
+  
+  const spotlightBackground = useMotionTemplate`radial-gradient(circle at ${mouseX} ${mouseY}, rgba(212, 175, 55, 0.12) 0%, transparent 800px)`;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -93,12 +95,7 @@ export default function BackgroundEffects() {
       {/* The Subtle Spotlight */}
       <motion.div
         className="hidden md:block absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.12) 0%, transparent 800px)`,
-          '--mouse-x': mouseX,
-          '--mouse-y': mouseY,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any}
+        style={{ background: spotlightBackground }}
       />
       
       {/* Premium Vignette (Darkens edges to focus on center) */}

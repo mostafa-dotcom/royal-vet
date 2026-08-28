@@ -44,11 +44,6 @@ const nextConfig: NextConfig = {
     ];
   },
   productionBrowserSourceMaps: false,
-  webpack: (config) => {
-    // Completely disable source maps to hide original source code in DevTools (for Webpack fallback)
-    config.devtool = false;
-    return config;
-  },
   turbopack: {}, // Silence Turbopack warning about webpack config
 };
 
