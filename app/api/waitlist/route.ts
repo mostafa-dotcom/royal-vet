@@ -9,10 +9,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Phone number is required' }, { status: 400 });
     }
 
-    // Security: Strict Phone Validation (Only numbers and +, max 15 chars)
-    const phoneRegex = /^\+?[0-9]{8,15}$/;
-    if (!phoneRegex.test(phone.replace(/\s+/g, ''))) {
-      return NextResponse.json({ error: 'Invalid phone number format' }, { status: 400 });
+    // Normalize phone number
+    let normalizedPhone = phone.trim();
+
+    // 1. Convert Arabic/Eastern Arabic numerals to Western digits
+    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    for (let i = 0; i < 10; i++) {
+      normalizedPhone = normalizedPhone.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
+    }
+
+    // 2. Extract leading '+' if present
+    const hasPlus = normalizedPhone.startsWith('+');
+
+    // 3. Remove all non-digit characters (spaces, dashes, parens, etc.)
+    normalizedPhone = normalizedPhone.replace(/\D/g, '');
+
+    // 4. Put '+' back if it was there
+    if (hasPlus) {
+      normalizedPhone = '+' + normalizedPhone;
+    }
+
+    // Security: Strict Phone Validation (length between 8 and 15 digits)
+    const digitsOnlyLength = normalizedPhone.replace('+', '').length;
+    if (digitsOnlyLength < 8 || digitsOnlyLength > 15) {
+      return NextResponse.json({ error: 'Invalid phone number length or format' }, { status: 400 });
     }
 
     // Security: Name Length Validation (Prevent payload flooding)
@@ -22,7 +42,7 @@ export async function POST(request: Request) {
 
     // Check if phone already exists
     const existing = await prisma.waitlist.findUnique({
-      where: { phone },
+      where: { phone: normalizedPhone },
     });
 
     if (existing) {
@@ -32,7 +52,7 @@ export async function POST(request: Request) {
     const waitlist = await prisma.waitlist.create({
       data: {
         name: name || null,
-        phone,
+        phone: normalizedPhone,
       },
     });
 
