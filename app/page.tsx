@@ -45,7 +45,7 @@ export default function ComingSoonPage() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full max-w-full bg-transparent flex flex-col items-center overflow-x-hidden font-sans text-white" dir="rtl">
+    <div className="relative min-h-[100dvh] w-full max-w-full bg-transparent flex flex-col items-center font-sans text-white" dir="rtl">
       
       {/* Dynamic Cinematic Background Glow following mouse */}
       <div 
@@ -263,7 +263,7 @@ export default function ComingSoonPage() {
       </div>
 
       {/* Large Background Text */}
-      <div className="absolute bottom-6 sm:bottom-[2%] md:bottom-[-4%] lg:bottom-[-8%] left-0 w-full flex justify-center pointer-events-none z-0">
+      <div className="absolute bottom-6 sm:bottom-[2%] md:bottom-[-4%] lg:bottom-[-8%] left-0 w-full flex justify-center pointer-events-none z-0 overflow-hidden">
         <h1 
           dir="ltr"
           className="text-[18vw] sm:text-[16vw] md:text-[14vw] lg:text-[16vw] font-serif font-bold text-white/[0.03] tracking-wider whitespace-nowrap uppercase select-none leading-none flex"
