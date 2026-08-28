@@ -19,7 +19,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-transparent relative z-20" dir="rtl">
+    <div className="min-h-[100dvh] w-full flex items-center justify-center p-4 bg-transparent relative z-20" dir="rtl">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

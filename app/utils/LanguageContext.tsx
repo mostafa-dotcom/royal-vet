@@ -35,7 +35,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
-      <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="w-full min-h-screen">
+      <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="w-full min-h-[100dvh]">
         {children}
       </div>
     </LanguageContext.Provider>

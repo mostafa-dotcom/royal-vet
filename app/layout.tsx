@@ -78,11 +78,11 @@ export default function RootLayout({
         <BackgroundEffects />
         <Preloader />
         <CustomCursor />
-        <div className="relative z-10 flex flex-col min-h-screen w-full">
+        <div className="relative z-10 flex flex-col min-h-[100dvh] w-full">
           <LanguageProvider>
             <SmoothScroll>
               {/* <Navbar /> */}
-              <main className="flex-1 w-full min-h-screen">
+              <main className="flex-1 w-full min-h-[100dvh]">
                 {children}
               </main>
               {/* <Footer /> */}

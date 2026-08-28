@@ -45,7 +45,7 @@ export default function ComingSoonPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full max-w-[100vw] bg-transparent flex flex-col items-center overflow-x-hidden font-sans text-white" dir="rtl">
+    <div className="relative min-h-[100dvh] w-full max-w-full bg-transparent flex flex-col items-center overflow-x-hidden font-sans text-white" dir="rtl">
       
       {/* Dynamic Cinematic Background Glow following mouse */}
       <div 

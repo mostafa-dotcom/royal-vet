@@ -76,7 +76,7 @@ export default function Hero() {
   const springReveal = { type: "spring" as const, stiffness: 100, damping: 20 };
 
   return (
-    <section ref={ref} onMouseMove={handleMouseMove} className="relative min-h-screen w-full bg-transparent overflow-hidden pt-28 pb-12 flex items-center">
+    <section ref={ref} onMouseMove={handleMouseMove} className="relative min-h-[100dvh] w-full bg-transparent overflow-hidden pt-28 pb-12 flex items-center">
       
       {/* Cinematic Lighting System: Ambient Glow */}
       <motion.div style={{ x: bgX, y: bgY }} className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none transform-gpu will-change-transform translate-x-1/3 -translate-y-1/3" />
