@@ -80,10 +80,12 @@ export async function uploadCatalog(formData: FormData) {
       return { error: 'برجاء اختيار ملف' };
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+
     // Ensure the assets bucket is used, overwrite catalog.pdf if it exists
     const { error } = await supabase.storage
       .from('assets')
-      .upload('catalog.pdf', file, {
+      .upload('catalog.pdf', arrayBuffer, {
         contentType: 'application/pdf',
         upsert: true,
       });
