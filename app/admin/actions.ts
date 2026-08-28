@@ -86,7 +86,7 @@ export async function uploadCatalog(formData: FormData) {
     const buffer = Buffer.from(bytes);
 
     // Ensure the assets bucket is used, overwrite catalog.pdf if it exists
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('assets')
       .upload('catalog.pdf', buffer, {
         contentType: 'application/pdf',
