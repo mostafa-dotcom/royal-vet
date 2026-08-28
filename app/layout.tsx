@@ -72,8 +72,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html className={`${cairo.variable}`}>
-      <body className={`font-sans bg-transparent antialiased selection:bg-[#D4AF37]/30 selection:text-white`}>
+    <html lang="ar" suppressHydrationWarning className={`${cairo.variable}`}>
+      <body suppressHydrationWarning className={`font-sans bg-transparent antialiased selection:bg-[#D4AF37]/30 selection:text-white`}>
         <ConsoleSuppressor />
         <BackgroundEffects />
         <Preloader />

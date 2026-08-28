@@ -166,7 +166,7 @@ export default function DashboardClient({ initialData }: { initialData: Waitlist
                     <td className="p-4 text-white" dir="ltr">
                       {entry.phone}
                     </td>
-                    <td className="p-4 text-gray-300 text-sm">
+                    <td className="p-4 text-gray-300 text-sm" suppressHydrationWarning>
                       {new Date(entry.createdAt).toLocaleDateString('ar-EG', {
                         year: 'numeric', month: 'short', day: 'numeric',
                         hour: '2-digit', minute: '2-digit'
