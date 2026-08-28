@@ -30,13 +30,19 @@ export default function DashboardClient({ initialData }: { initialData: Waitlist
     const formData = new FormData();
     formData.append('catalog', file);
 
-    const result = await uploadCatalog(formData);
-    
-    setIsUploading(false);
-    if (result.error) {
-      alert(result.error);
-    } else {
-      alert('تم رفع وتحديث الكتالوج بنجاح! 🚀');
+    try {
+      const result = await uploadCatalog(formData);
+      
+      setIsUploading(false);
+      if (result.error) {
+        alert(result.error);
+      } else {
+        alert('تم رفع وتحديث الكتالوج بنجاح! 🚀');
+      }
+    } catch (err) {
+      console.error(err);
+      setIsUploading(false);
+      alert('حدث خطأ غير متوقع أثناء الاتصال بالخادم.');
     }
   };
 

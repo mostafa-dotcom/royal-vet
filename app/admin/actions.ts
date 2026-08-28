@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { supabase } from '../utils/supabase';
 
 export async function login(formData: FormData) {
   const password = formData.get('password') as string;
@@ -79,16 +80,10 @@ export async function uploadCatalog(formData: FormData) {
       return { error: 'برجاء اختيار ملف' };
     }
 
-    // Dynamic import to avoid client-side issues
-    const { supabase } = await import('@/app/utils/supabase');
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // Ensure the assets bucket is used, overwrite catalog.pdf if it exists
     const { error } = await supabase.storage
       .from('assets')
-      .upload('catalog.pdf', buffer, {
+      .upload('catalog.pdf', file, {
         contentType: 'application/pdf',
         upsert: true,
       });
